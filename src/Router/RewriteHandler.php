@@ -361,6 +361,13 @@ class RewriteHandler {
             return;
         }
 
+        // Only singular posts and pages have a .md alternate. Archives, feeds and search
+        // canonicalize to a .md URL that returns 404 (upstream issue #43), so leave them to
+        // the platform's edge converter instead of redirecting into an error.
+        if (!is_singular()) {
+            return;
+        }
+
         $canonical = $this->get_current_canonical_url();
         if (!$canonical) {
             return;
