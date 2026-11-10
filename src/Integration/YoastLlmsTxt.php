@@ -98,6 +98,10 @@ class YoastLlmsTxt {
             return $canonical;
         }
 
+        if ( $this->is_site_root( $canonical ) ) {
+            return $canonical;
+        }
+
         return rtrim( $canonical, '/' ) . '.md';
     }
 
@@ -113,10 +117,22 @@ class YoastLlmsTxt {
      */
     public function rewrite_post_link( $url, $post ): string {
         $post_type = get_post_type( $post );
-        if ( ! $post_type || ! PostTypeSupport::is_supported( $post_type ) ) {
+        if ( ! $post_type || ! PostTypeSupport::is_supported( $post_type ) || $this->is_site_root( $url ) ) {
             return $url;
         }
 
         return rtrim( $url, '/' ) . '.md';
+    }
+
+    /**
+     * Whether a URL is the site root, which has no .md alternate.
+     *
+     * Appending .md to the root would produce an invalid host such as example.com.md.
+     *
+     * @param string $url The URL to test.
+     * @return bool
+     */
+    private function is_site_root( $url ): bool {
+        return untrailingslashit( (string) $url ) === untrailingslashit( home_url() );
     }
 }
